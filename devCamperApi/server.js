@@ -1,11 +1,13 @@
 const express = require("express");
+const bodyParser=require("body-parser")
 const connDb = require("./config/db_connection");
 const dotenv = require("dotenv");
 //load env vars
 dotenv.config({
     path: "./config/config.env"
 });
-const colors=require("colors");
+const colors = require("colors");
+
 //connect to database
 connDb();
 
@@ -20,7 +22,10 @@ const app = express();
 if (process.env.NODE_ENV === "development") {
     app.use(morgan("dev"))
 }
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended:true
+}))
 //Mount route files
 app.use('/api/v1/bootcamps', bootcamps);
 
@@ -29,5 +34,5 @@ const server = app.listen(PORT, console.log(`server is running in ${mode} mode o
 //handle unhandled promise rejection
 process.on("unhandledRejection", (err, promise) => {
     console.log(`Error: ${err.message}`.red.bold);
-    server.close(()=>process.exit(1));
+    server.close(() => process.exit(1));
 })
