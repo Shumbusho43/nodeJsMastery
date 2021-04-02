@@ -1,0 +1,23 @@
+{
+  "name": "devcamperapi",
+  "version": "1.0.0",
+  "description": "devCamperBackend",
+  "main": "server.js",
+  "scripts": {
+    "test": "NODE_ENV=production node sever",
+    "start": "nodemon server"
+  },
+  "author": "David",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "colors": "^1.4.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.12.2",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
