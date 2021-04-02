@@ -1,4 +1,5 @@
 const { bootcamps } = require("../models/bootcamp");
+const { ErrorResponse } = require("../utils/errorResponse");
 const { formatResult } = require("../utils/imports");
 
 //@desc get all bootcamps
@@ -16,15 +17,9 @@ exports.getBootcamps = async (req, res, next) => {
       })
     );
   } catch (error) {
-    res.send(
-      formatResult({
-        status: 400,
-        message: error,
-      })
-    );
-  }
+   next(error)
 };
-
+}
 //@desc get a single bootcamp
 //@routes GET /api/v1/bootcamp/:id
 //access public
@@ -32,12 +27,7 @@ exports.getBootcamp = async (req, res, next) => {
   try {
     const bootcamp = await bootcamps.findById(req.params.id);
     if (!bootcamp) {
-      return res.send(
-        formatResult({
-          status: 400,
-          message: "no bootcamp with this id",
-        })
-      );
+      return next(new ErrorResponse(`no bootcamp with id: ${req.params.id}`,404))
     }
     res.send(
       formatResult({
@@ -47,14 +37,10 @@ exports.getBootcamp = async (req, res, next) => {
       })
     );
   } catch (error) {
-    res.send(
-      formatResult({
-        status: 400,
-        message: error,
-      })
-    );
-  }
-};
+    next(error)
+}
+}
+
 //@desc create a new bootcamp
 //@routes POST /api/v1/bootcamps
 //access public
@@ -69,7 +55,7 @@ exports.createBootcamp = async (req, res, next) => {
       })
     );
   } catch (error) {
-    res.send(error.message);
+    next(error);
   }
 };
 //@desc update bootcamp
@@ -83,12 +69,7 @@ exports.updateBootcamp = async (req, res, next) => {
       { new: true, runValidators: true }
     );
     if (!bootcamp) {
-      return res.send(
-        formatResult({
-          status: 400,
-          message: "no bootcamp with this id",
-        })
-      );
+     return next(new ErrorResponse(`no bootcamp with id: ${req.params.id}`,404))
     }
     res.send(
       formatResult({
@@ -98,7 +79,7 @@ exports.updateBootcamp = async (req, res, next) => {
       })
     );
   } catch (error) {
-    res.status(500).send(error.message);
+ next(error)
   }
 };
 
@@ -111,12 +92,7 @@ exports.deleteBootcamp = async(req, res, next) => {
           req.params.id
         );
         if (!bootcamp) {
-          return res.send(
-            formatResult({
-              status: 400,
-              message: "no bootcamp with this id",
-            })
-          );
+            return next(new ErrorResponse(`no bootcamp with id: ${req.params.id}`,404))
         }
         res.send(
           formatResult({
@@ -125,6 +101,6 @@ exports.deleteBootcamp = async(req, res, next) => {
           })
         );
       } catch (error) {
-        res.status(500).send(error.message);
+       next(error)
       }
-};
+}

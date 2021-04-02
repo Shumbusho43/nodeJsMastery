@@ -5,7 +5,7 @@
  * @param data
  * @returns {{status:number,message:string,count:number,data:*}}
  */
-exports.formatResult = ({ status = 200, message = "ok",count=0, data }) => {
+exports.formatResult = ({ status = 200, message = "ok",count=1, data }) => {
   return {
     status: status,
     message: message.toString().split('\"').join(""),

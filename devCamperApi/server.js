@@ -17,6 +17,7 @@ const {
     bootcamps
 } = require("./routes/bootcamp");
 const morgan = require("morgan");
+const { errorHandler } = require("./middleware/error");
 const app = express();
 //Dev logging middleware
 if (process.env.NODE_ENV === "development") {
@@ -28,7 +29,7 @@ app.use(bodyParser.urlencoded({
 }))
 //Mount route files
 app.use('/api/v1/bootcamps', bootcamps);
-
+app.use(errorHandler)
 const server = app.listen(PORT, console.log(`server is running in ${mode} mode on port ${PORT}`.yellow.bold));
 
 //handle unhandled promise rejection
