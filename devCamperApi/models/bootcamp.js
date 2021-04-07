@@ -1,8 +1,12 @@
 const mongoose = require("mongoose");
+const slugify = require("slugify");
+const {
+  geocoder
+} = require("../utils/geocoder");
 const bootcampSchema = new mongoose.Schema({
   name: {
     type: String,
-    require: [true, "bootcamp name is required"],
+    required: [true, "bootcamp name is required"],
     unique: [true, "this name is taken"],
     trim: true,
     maxlength: [50, "name can not go beyond 50 characters"],
@@ -11,7 +15,7 @@ const bootcampSchema = new mongoose.Schema({
   slug: String,
   description: {
     type: String,
-    require: [true, "description is required"],
+    required: [true, "description is required"],
     maxlength: [500, "description can not go beyond 500 characters"],
     minlength: [10, "description can not be below 5 characters"],
   },
@@ -67,29 +71,55 @@ const bootcampSchema = new mongoose.Schema({
     max: [10, "rating must be <11"]
   },
   averageCost: Number,
-  photo:{
-      type:String,
-      default:"./noPhoto.png"
+  photo: {
+    type: String,
+    default: "./noPhoto.png"
   },
-  housing:{
-      type:Boolean,
-      default:false
-  }
-  , jobAssistance:{
-      type:Boolean,
-      default:false
+  housing: {
+    type: Boolean,
+    default: false
   },
-   jobGuarantee:{
-      type:Boolean,
-      default:false
+  jobAssistance: {
+    type: Boolean,
+    default: false
   },
-   acceptGi:{
-      type:Boolean,
-      default:false
+  jobGuarantee: {
+    type: Boolean,
+    default: false
   },
-  createdAt:{
-      type:Date,
-      default:Date.now
+  acceptGi: {
+    type: Boolean,
+    default: false
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
-module.exports.bootcamps=mongoose.model("BootCamp",bootcampSchema);
+//creatingbootcammp slug from name of bootcamp provided
+bootcampSchema.pre('save', function (next) {
+  // console.log("slugify is running ", this.name);
+  this.slug = slugify(this.name, {
+    lowercase: true,
+    underscore: true
+  });
+  next();
+})
+//geo code and create location field
+bootcampSchema.pre('save', async function (next) {
+  const loc = await geocoder.geocode(this.address)
+  this.location = {
+    type: 'Point',
+    coordinates: [loc[0].longitude, loc[0].latitude],
+    formattedAddress: loc[0].formattedAddress,
+    street: loc[0].streetName,
+    city: loc[0].city,
+    state: loc[0].stateCode,
+    zipcode: loc[0].zipcode,
+    country: loc[0].countryCode,
+  }
+  //don't save address
+  this.address = undefined;
+  next()
+})
+module.exports.bootcamps = mongoose.model("BootCamp", bootcampSchema);

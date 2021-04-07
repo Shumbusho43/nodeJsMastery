@@ -1,6 +1,15 @@
-const { bootcamps } = require("../models/bootcamp");
-const { ErrorResponse } = require("../utils/errorResponse");
-const { formatResult } = require("../utils/imports");
+const {
+  asyncHandler
+} = require("../middleware/async");
+const {
+  bootcamps
+} = require("../models/bootcamp");
+const {
+  ErrorResponse
+} = require("../utils/errorResponse");
+const {
+  formatResult
+} = require("../utils/imports");
 
 //@desc get all bootcamps
 //@routes GET /api/v1/bootcamps
@@ -12,13 +21,13 @@ exports.getBootcamps = async (req, res, next) => {
       formatResult({
         status: 200,
         message: "ok",
-        count:allBootcamps.length,
+        count: allBootcamps.length,
         data: allBootcamps
       })
     );
   } catch (error) {
-   next(error)
-};
+    next(error)
+  };
 }
 //@desc get a single bootcamp
 //@routes GET /api/v1/bootcamp/:id
@@ -27,7 +36,7 @@ exports.getBootcamp = async (req, res, next) => {
   try {
     const bootcamp = await bootcamps.findById(req.params.id);
     if (!bootcamp) {
-      return next(new ErrorResponse(`no bootcamp with id: ${req.params.id}`,404))
+      return next(new ErrorResponse(`no bootcamp with id: ${req.params.id}`, 404))
     }
     res.send(
       formatResult({
@@ -38,14 +47,14 @@ exports.getBootcamp = async (req, res, next) => {
     );
   } catch (error) {
     next(error)
-}
+  }
 }
 
 //@desc create a new bootcamp
 //@routes POST /api/v1/bootcamps
 //access public
-exports.createBootcamp = async (req, res, next) => {
-  try {
+exports.createBootcamp = asyncHandler(
+  async (req, res, next) => {
     const newBootCamp = await bootcamps.create(req.body);
     res.send(
       formatResult({
@@ -54,53 +63,45 @@ exports.createBootcamp = async (req, res, next) => {
         data: newBootCamp,
       })
     );
-  } catch (error) {
-    next(error);
   }
-};
+)
 //@desc update bootcamp
 //@routes POST /api/v1/bootcamps/:id
 //access public
-exports.updateBootcamp = async (req, res, next) => {
-  try {
-    const bootcamp = await bootcamps.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-    if (!bootcamp) {
-     return next(new ErrorResponse(`no bootcamp with id: ${req.params.id}`,404))
+exports.updateBootcamp = asyncHandler(async (req, res, next) => {
+  const bootcamp = await bootcamps.findByIdAndUpdate(
+    req.params.id,
+    req.body, {
+      new: true,
+      runValidators: true
     }
-    res.send(
-      formatResult({
-        status: 200,
-        message: "updated",
-        data: bootcamp
-      })
-    );
-  } catch (error) {
- next(error)
+  );
+  if (!bootcamp) {
+    return next(new ErrorResponse(`no bootcamp with id: ${req.params.id}`, 404))
   }
-};
+  res.send(
+    formatResult({
+      status: 200,
+      message: "updated",
+      data: bootcamp
+    })
+  );
+})
 
 //@desc deleting bootcamp
 //@routes POST /api/v1/bootcamps/:id
 //access public
-exports.deleteBootcamp = async(req, res, next) => {
-    try {
-        const bootcamp = await bootcamps.findByIdAndDelete(
-          req.params.id
-        );
-        if (!bootcamp) {
-            return next(new ErrorResponse(`no bootcamp with id: ${req.params.id}`,404))
-        }
-        res.send(
-          formatResult({
-            status: 200,
-            message: "DELETED",
-          })
-        );
-      } catch (error) {
-       next(error)
-      }
-}
+exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
+  const bootcamp = await bootcamps.findByIdAndDelete(
+    req.params.id
+  );
+  if (!bootcamp) {
+    return next(new ErrorResponse(`no bootcamp with id: ${req.params.id}`, 404))
+  }
+  res.send(
+    formatResult({
+      status: 200,
+      message: "DELETED",
+    })
+  );
+})
