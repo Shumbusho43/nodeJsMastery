@@ -11,6 +11,11 @@ const errorHandler=(err,req,res,next)=>{
        const message=`resource not found with id: ${err.value}`
        error=new ErrorResponse(message,500)
     }
+    //network error cz geocoder needs to be online
+    if (err.name === "HttpError") {
+       const message=`connect to the internet`
+       error=new ErrorResponse(message,400)
+    }
     //mongoose duplicate key
     if (err.code===11000) {
        const message=`Duplicate field key value entered`
