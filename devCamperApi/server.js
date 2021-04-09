@@ -18,6 +18,7 @@ const {
 } = require("./routes/bootcamp");
 const morgan = require("morgan");
 const { errorHandler } = require("./middleware/error");
+const { courses } = require("./routes/courses");
 const app = express();
 //Dev logging middleware
 if (process.env.NODE_ENV === "development") {
@@ -29,6 +30,7 @@ app.use(bodyParser.urlencoded({
 }))
 //Mount route files
 app.use('/api/v1/bootcamps', bootcamps);
+app.use('/api/v1/courses', courses)
 app.use(errorHandler)
 const server = app.listen(PORT, console.log(`server is running in ${mode} mode on port ${PORT}`.yellow.bold));
 

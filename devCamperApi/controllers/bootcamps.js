@@ -37,7 +37,7 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
   queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`)
   
   //finding resource
-  query = bootcamps.find(JSON.parse(queryStr))
+  query = bootcamps.find(JSON.parse(queryStr)).populate('courses')
 
   //selecting fields
     if (req.query.select) {
@@ -91,9 +91,9 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
 //@desc get a single bootcamp
 //@routes GET /api/v1/bootcamp/:id
 //access public
-exports.getBootcamp = async (req, res, next) => {
-  try {
-    const bootcamp = await bootcamps.findById(req.params.id);
+exports.getBootcamp =asyncHandler( async (req, res, next) => {
+  
+    const bootcamp = await bootcamps.findById(req.params.id).populate('courses');
     if (!bootcamp) {
       return next(new ErrorResponse(`no bootcamp with id: ${req.params.id}`, 404))
     }
@@ -104,10 +104,7 @@ exports.getBootcamp = async (req, res, next) => {
         data: bootcamp,
       })
     );
-  } catch (error) {
-    next(error)
-  }
-}
+})
 
 //@desc create a new bootcamp
 //@routes POST /api/v1/bootcamps
@@ -152,12 +149,13 @@ exports.updateBootcamp = asyncHandler(async (req, res, next) => {
 //@routes POST /api/v1/bootcamps/:id
 //access public
 exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
-  const bootcamp = await bootcamps.findByIdAndDelete(
+  const bootcamp = await bootcamps.findById(
     req.params.id
   );
   if (!bootcamp) {
     return next(new ErrorResponse(`no bootcamp with id: ${req.params.id}`, 404))
   }
+  bootcamp.remove();
   res.send(
     formatResult({
       status: 200,
