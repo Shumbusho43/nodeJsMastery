@@ -1,6 +1,8 @@
 const express = require("express");
 const bodyParser=require("body-parser")
 const connDb = require("./config/db_connection");
+const fileUpload = require("express-fileupload");
+const path = require("path")
 const dotenv = require("dotenv");
 //load env vars
 dotenv.config({
@@ -20,14 +22,23 @@ const morgan = require("morgan");
 const { errorHandler } = require("./middleware/error");
 const { courses } = require("./routes/courses");
 const app = express();
+
 //Dev logging middleware
 if (process.env.NODE_ENV === "development") {
     app.use(morgan("dev"))
 }
+
+//uploading a photo
+app.use(fileUpload());
+
+//setting static folder
+app.use(express.static(path.join(__dirname, 'public')))
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended:true
 }))
+
 //Mount route files
 app.use('/api/v1/bootcamps', bootcamps);
 app.use('/api/v1/courses', courses)

@@ -28,8 +28,8 @@ exports.getCourses = asyncHandler(async (req, res, next) => {
         else {
         query = courses.find().populate({
             path: 'bootcamp',
-            select:'name description'
-        });
+            select: 'name description'
+        })
     }
     const Allcourses = await query;
     res.status(200).send({
@@ -80,11 +80,11 @@ exports.createCourse = asyncHandler(async (req, res, next) => {
 //access private
 
 exports.deleteCourse = asyncHandler(async (req, res, next) => {
-    const course = await courses.findById(req.params.id)
+    let course = await courses.findById(req.params.id)
     if (!course) {
         return next(new ErrorResponse(`no course with id: ${req.params.id}`))
     }
-    await course.remove()
+    course=await courses.remove()
     res.status(200).json({
         success: true,
         message:'deleted'
