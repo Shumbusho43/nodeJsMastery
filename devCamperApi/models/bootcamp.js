@@ -36,6 +36,8 @@ const bootcampSchema = new mongoose.Schema({
       /^([0-9a-zA-Z]([-_\\.]*[0-9a-zA-Z]+)*)@([0-9a-zA-Z]([-_\\.]*[0-9a-zA-Z]+)*)[\\.]([a-zA-Z]{2,9})$/,
       "please enter a valid email address",
     ],
+    unique: true,
+    required: true
   },
   address: {
     type: String,
@@ -63,7 +65,7 @@ const bootcampSchema = new mongoose.Schema({
   careers: {
     type: [String],
     require: true,
-    enum: ["Web Development","Codemasters", "Mobile Development", "Data Science","UI/UX","Business", "others"],
+    enum: ["Web Development", "Codemasters", "Mobile Development", "Data Science", "UI/UX", "Business", "others"],
   },
   averageRating: {
     type: Number,
@@ -94,10 +96,15 @@ const bootcampSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  }
+  },
+   user: {
+     type: mongoose.Schema.ObjectId,
+     ref: 'User',
+     required: true
+   }
 }, {
   toJSON: { virtuals: true },
-  toObject: { virtuals: true}
+  toObject: { virtuals: true }
 });
 
 //creatingbootcammp slug from name of bootcamp provided

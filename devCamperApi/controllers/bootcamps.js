@@ -19,77 +19,8 @@ const path = require('path');
 //access public
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
   // console.log(req.query);
-  let query;
 
-  //copying req.query
-  let reqQuery = {
-    ...req.query
-  }
-
-  //fields to exclude
-  const removeField = ['select', 'sort', 'page', 'limit'];
-
-  //loop over removeField and delete them from req.query
-  removeField.forEach(param => delete reqQuery[param]);
-
-  //creating req.query string
-  let queryStr = JSON.stringify(reqQuery)
-  //creating operators
-  queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`)
-
-  //finding resource
-  query = bootcamps.find(JSON.parse(queryStr)).populate({
-    path: 'courses',
-    select: 'title description'
-  })
-
-  //selecting fields
-  if (req.query.select) {
-    const fields = req.query.select.split(",").join(" ");
-    query = query.select(fields)
-    console.log(fields);
-  }
-  if (req.query.sort) {
-    const sortBy = req.query.sort.split(",").join(" ");
-    query = query.sort(sortBy)
-    console.log(sortBy);
-  } else {
-    query = query.sort('-createdAt')
-  }
-
-  //pagination
-  const page = parseInt(req.query.page, 10) || 1;
-  const limit = parseInt(req.query.limit, 10) || 100;
-  const startIndex = (page - 1) * limit;
-  const endIndex = page * limit;
-  const total = await bootcamps.countDocuments()
-  query = query.skip(startIndex).limit(limit);
-
-  //executing the query
-  const allBootcamps = await query;
-  const pagination = {};
-  if (endIndex < total) {
-    pagination.next = {
-      page: page + 1,
-      limit
-    };
-  }
-  if (startIndex > 0) {
-    pagination.prev = {
-      page: page - 1,
-      limit
-    };
-  }
-  res.send(
-    formatResult({
-      status: 200,
-      message: "ok",
-      count: allBootcamps.length,
-      pagination,
-      data: allBootcamps
-    })
-  );
-
+  res.status(200).json(res.advancedResult)
 })
 //@desc get a single bootcamp
 //@routes GET /api/v1/bootcamp/:id
@@ -114,6 +45,15 @@ exports.getBootcamp = asyncHandler(async (req, res, next) => {
 //access public
 exports.createBootcamp = asyncHandler(
   async (req, res, next) => {
+    //adding user to req.body
+    req.body.user = req.user.id;
+
+    //check for published bootcamp
+    const publishedBootcamp = await bootcamps.findOne({ user: req.user.id })
+    //if user is not an admin, then he/she is only allowed to add one bootcamp
+    if (publishedBootcamp && req.user.role!='admin') {
+      return next(new ErrorResponse(`user with id: ${req.user.id} already published a bootcamp`,400))
+    }
     const newBootCamp = await bootcamps.create(req.body);
     console.log(req.params);
     res.send(

@@ -8,9 +8,6 @@ const {
 const {
     ErrorResponse
 } = require("../utils/errorResponse");
-const {
-    formatResult
-} = require("../utils/imports");
 
 //@desc get all courses
 //@routes GET /api/v1/courses
@@ -19,17 +16,18 @@ const {
 //access public
 
 exports.getCourses = asyncHandler(async (req, res, next) => {
-    let query;
     if (req.params.bootcampId) {
-        query = courses.find({
+        const Courses =await courses.find({
             bootcamp: req.params.bootcampId
+        })
+        return res.status(200).json({
+            success: true,
+            count: courses.length,
+            data:Courses
         })
     }
         else {
-        query = courses.find().populate({
-            path: 'bootcamp',
-            select: 'name description'
-        })
+       res.status(200).json(res.advancedResult)
     }
     const Allcourses = await query;
     res.status(200).send({

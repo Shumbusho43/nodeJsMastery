@@ -15,3 +15,4 @@ exports.formatResult = ({ status = 200, message = "ok",count=1,pagination=1, dat
     data: data
   };
 };
+exports.ONE_DAY = 1 * 24 * 60 * 60;

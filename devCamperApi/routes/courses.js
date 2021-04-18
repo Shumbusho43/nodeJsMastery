@@ -8,12 +8,25 @@ const {
     getCourse,
     deleteCourse,
     updateCourse
-} = require("../controllers/courses")
+} = require("../controllers/courses");
+const {
+    advancedResult
+} = require("../middleware/advancedQuery");
+const {
+    protect,
+    role
+} = require("../middleware/auth");
+const {
+    courses
+} = require("../models/courses");
 router.route("/")
-    .get(getCourses)
-    .post(createCourse)
+    .get(advancedResult(courses, {
+        path: 'bootcamp',
+        select: 'name description'
+    }), getCourses)
+    .post(protect, role('publisher', 'admin'), createCourse)
 router.route('/:id')
     .get(getCourse)
-    .delete(deleteCourse)
-    .put(updateCourse)
+    .delete(protect, role('publisher', 'admin'), deleteCourse)
+    .put(protect, role('publisher', 'admin'), updateCourse)
 module.exports.courses = router
