@@ -7,7 +7,7 @@ const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 //getting path
 const path = require("path")
-
+const cors = require("cors");
 const dotenv = require("dotenv");
 //load env vars
 dotenv.config({
@@ -29,7 +29,8 @@ const { errorHandler } = require("./middleware/error");
 const { courses } = require("./routes/courses");
 const { userAuth } = require("./routes/auth");
 const app = express();
-
+//cors
+app.use(cors());
 //Dev logging middleware
 if (process.env.NODE_ENV === "development") {
     app.use(morgan("dev"))
