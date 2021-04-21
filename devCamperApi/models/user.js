@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const {
     ONE_DAY
 } = require("../utils/imports");
@@ -24,11 +25,12 @@ const userShema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'plz provide password'],
-        select: false
+        select: false,
+        min:[5,'password must be greater than 5 characters']
     },
     role: {
         type: String,
-        enum: ['user', 'publisher'],
+        enum: ['user', 'publisher','admin'],
         default: 'user'
     },
     resetPasswordToken: String,
@@ -48,12 +50,25 @@ userShema.methods.generateAuthToken = function () {
 }
 //encrpting password
 userShema.pre('save', async function (next) {
+    if (!this.isModified('password')) {
+        next();
+    }
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt)
     next();
 })
 //match password
 userShema.methods.passwordMatch = async function (enteredPass) {
-    return await bcrypt.compare(enteredPass,this.password)
+    return await bcrypt.compare(enteredPass, this.password)
+}
+//generate and hash passwordToken
+userShema.methods.getResetPasswordToken = function () {
+    //generate token
+    const resetToken = crypto.randomBytes(20).toString('hex');
+    //hashing token and set it to resetPasswordToken
+    this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    //string token expiration time
+    this.resetPasswordExpires = Date.now() + 10*60*1000;
+    return resetToken;
 }
 module.exports.USER = mongoose.model("User", userShema);
