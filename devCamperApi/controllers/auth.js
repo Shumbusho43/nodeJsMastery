@@ -121,9 +121,9 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 //access private
 
 exports.resetPassword = asyncHandler(async (req, res, next) => {
-    const resetPasswordToken = crypto.createHash('sha256').update(req.params.resetToken).digest('hex');
+    const resetToken = crypto.createHash('sha256').update(req.params.resetToken).digest('hex');
     const user = await USER.findOne({
-        resetPasswordToken,
+        resetPasswordToken: resetToken,
         resetPasswordExpires: {
             $gt: Date.now()
         }
@@ -134,6 +134,49 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
     user.password = req.body.password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
+    await user.save();
+    sendTokenResponse(user, 200, res);
+})
+
+//@desc updating user details
+//route PUT /api/v1/updadateDetails
+//access private
+exports.updateDetails = asyncHandler(async (req, res, next) => {
+    const fieldsToUpdate = {
+        name: req.body.name,
+        email: req.body.email
+    }
+    const user = await USER.findByIdAndUpdate(
+        req.user.id,
+        fieldsToUpdate
+        , {
+            new: true,
+            runValidators: true
+    })
+    if (!user) {
+        return next(new ErrorResponse(`user with id: ${req.params.id} not found`, 404))
+    }
+     if (!fieldsToUpdate.name || !fieldsToUpdate.email) {
+         return next(new ErrorResponse(`noting to update`))
+     }
+    res.status(200).json({
+        success: true,
+        data: user
+    })
+})
+//@desc updating password
+//route PUT /api/v1/updadatePassword
+//access private
+exports.updatePassword = asyncHandler(async (req, res, next) => {
+    const user = await USER.findById(req.user.id).select('+password');
+    if (!user) {
+        return next(new ErrorResponse(`user with id: ${req.params.id} not found`, 404))
+    }
+    //checking if current password is true
+    if (!(await user.passwordMatch(req.body.currentPassword))) {
+     return next(new ErrorResponse(`incorrect password`, 401)) 
+    }
+    user.password = req.body.newPassword;
     await user.save();
     sendTokenResponse(user, 200, res);
 })
