@@ -28,6 +28,7 @@ const morgan = require("morgan");
 const { errorHandler } = require("./middleware/error");
 const { courses } = require("./routes/courses");
 const { userAuth } = require("./routes/auth");
+const { adminRoutes } = require("./routes/user");
 const app = express();
 //cors
 app.use(cors());
@@ -53,7 +54,8 @@ app.use(bodyParser.urlencoded({
 //Mount route files
 app.use('/api/v1/bootcamps', bootcamps);
 app.use('/api/v1/courses', courses)
-app.use('/api/v1/auth',userAuth)
+app.use('/api/v1/auth', userAuth)
+app.use('/api/v1/auth/users',adminRoutes)
 app.use(errorHandler)
 const server = app.listen(PORT, console.log(`server is running in ${mode} mode on port ${PORT}`.yellow.bold));
 
