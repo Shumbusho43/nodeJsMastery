@@ -16,7 +16,6 @@ const {
 //@routes GET /api/v1/courses/:bootcampId/courses
 //@desc get all courses
 //access public
-
 exports.getCourses = asyncHandler(async (req, res, next) => {
     if (req.params.bootcampId) {
         const Courses = await courses.find({

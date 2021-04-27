@@ -13,7 +13,8 @@ const dotenv = require("dotenv");
 dotenv.config({
     path: "./config/config.env"
 });
-
+//sanitizing our APIs
+const mongoSanitize = require('express-mongo-sanitize');
 const colors = require("colors");
 
 //connect to database
@@ -29,6 +30,7 @@ const { errorHandler } = require("./middleware/error");
 const { courses } = require("./routes/courses");
 const { userAuth } = require("./routes/auth");
 const { adminRoutes } = require("./routes/user");
+const { Reviews } = require("./routes/reviews");
 const app = express();
 //cors
 app.use(cors());
@@ -45,17 +47,18 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 //cookie
 app.use(cookieParser());
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended:true
 }))
-
+// To remove data, use:
+app.use(mongoSanitize());
 //Mount route files
 app.use('/api/v1/bootcamps', bootcamps);
-app.use('/api/v1/courses', courses)
-app.use('/api/v1/auth', userAuth)
-app.use('/api/v1/auth/users',adminRoutes)
+app.use('/api/v1/courses', courses);
+app.use('/api/v1/auth', userAuth);
+app.use('/api/v1/auth/users', adminRoutes);
+app.use("/api/v1/reviews",Reviews)
 app.use(errorHandler)
 const server = app.listen(PORT, console.log(`server is running in ${mode} mode on port ${PORT}`.yellow.bold));
 

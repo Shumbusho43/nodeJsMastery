@@ -8,7 +8,7 @@ const errorHandler=(err,req,res,next)=>{
   // console.log(err.value);
     //mongoose bad requiest object id
    if (err.name==="CastError") {
-       const message=`resource not found with id: ${err.value}`
+       const message=`resource not found`
        error=new ErrorResponse(message,500)
     }
     //network error cz geocoder needs to be online
