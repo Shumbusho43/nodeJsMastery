@@ -16,7 +16,6 @@ const {
 //@routes GET /api/v1/courses/:bootcampId/reviews
 //access public
 exports.getReviews = asyncHandler(async (req, res, next) => {
-    console.log(req.params.bootcampId);
     if (req.params.bootcampId) {
         const review = await Reviews.find({
             bootcamp: req.params.bootcampId

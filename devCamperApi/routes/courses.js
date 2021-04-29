@@ -9,9 +9,8 @@ const {
     deleteCourse,
     updateCourse
 } = require("../controllers/courses");
-const {
-    advancedResult
-} = require("../middleware/advancedQuery");
+const { advancedResult } = require("../middleware/advancedQuery");
+
 const {
     protect,
     role
